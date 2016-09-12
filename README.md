@@ -12,6 +12,8 @@ closer to the metal.
 Through PyPI (older version):
 
     pip install omniture
+    
+    pip install git+https://github.com/vmAggies/omniture-master.git
 
 ## Authentication
 
