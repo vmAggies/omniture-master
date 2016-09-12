@@ -1,0 +1,180 @@
+{
+    "report": {
+        "elements": [
+            {
+                "id": "evar3",
+                "classification": "Classification 1",
+                "name": "Custom Conversion 3"
+            },
+            {
+                "id": "evar5",
+                "name": "Custom Conversion 5"
+            }
+        ],
+        "data": [
+            {
+                "url": "",
+                "breakdown": [
+                    {
+                        "url": "",
+                        "counts": [
+                            "2633608"
+                        ],
+                        "name": "Val1"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "10180"
+                        ],
+                        "name": "Val2"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "9320"
+                        ],
+                        "name": "Val3"
+                    }
+                ],
+                "counts": [
+                    "2663111"
+                ],
+                "name": "::unspecified::"
+            },
+            {
+                "url": "",
+                "breakdown": [
+                    {
+                        "url": "",
+                        "counts": [
+                            "26935"
+                        ],
+                        "name": "Val1"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "56868"
+                        ],
+                        "name": "Val2"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "3894"
+                        ],
+                        "name": "Val3"
+                    }
+                ],
+                "counts": [
+                    "92574"
+                ],
+                "name": "bc_name r1"
+            },
+            {
+                "url": "",
+                "breakdown": [
+                    {
+                        "url": "",
+                        "counts": [
+                            "2322"
+                        ],
+                        "name": "Val2"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "642"
+                        ],
+                        "name": "Val3"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "622"
+                        ],
+                        "name": "Val2"
+                    }
+                ],
+                "counts": [
+                    "52799"
+                ],
+                "name": "bc_name r3"
+            },
+            {
+                "url": "",
+                "breakdown": [
+                    {
+                        "url": "",
+                        "counts": [
+                            "1532"
+                        ],
+                        "name": "SC"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "47139"
+                        ],
+                        "name": "API"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "382"
+                        ],
+                        "name": "SC-DL"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "125"
+                        ],
+                        "name": "DW"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "37"
+                        ],
+                        "name": "Reportlet"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "33"
+                        ],
+                        "name": "Reportlet-DL"
+                    }
+                ],
+                "counts": [
+                    "49248"
+                ],
+                "name": "bc_name r4"
+            }
+        ],
+        "period": "Fri.  1 Jul. 2016",
+        "totals": [
+            "4740015"
+        ],
+        "metrics": [
+            {
+                "latency": 693,
+                "name": "Metric 1",
+                "type": "number",
+                "current": false,
+                "decimals": 0,
+                "id": "f:347467"
+            }
+        ],
+        "version": "1.4.16.7",
+        "reportSuite": {
+            "id": "test_rs",
+            "name": "test_rs"
+        },
+        "type": "ranked"
+    },
+    "waitSeconds": "0.498",
+    "runSeconds": "6.585"
+}

@@ -1,0 +1,86 @@
+{
+    "report": {
+        "elements": [
+            {
+                "id": "evar2",
+                "classification": "Classification 1",
+                "name": "Custom Conversion 2"
+            },
+            {
+                "id": "evar2",
+                "classification": "Classification 2",
+                "name": "Custom Conversion 2"
+            }
+        ],
+        "data": [
+            {
+                "url": "",
+                "breakdown": [
+                    {
+                        "url": "",
+                        "counts": [
+                            "641829"
+                        ],
+                        "name": "::unspecified::"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "32480"
+                        ],
+                        "name": "Test"
+                    }
+                ],
+                "counts": [
+                    "743577"
+                ],
+                "name": "::unspecified::"
+            },
+            {
+                "url": "",
+                "breakdown": [
+                    {
+                        "url": "",
+                        "counts": [
+                            "97184"
+                        ],
+                        "name": "test"
+                    },
+                    {
+                        "url": "",
+                        "counts": [
+                            "9661"
+                        ],
+                        "name": "test2"
+                    }
+                  ],
+                "counts": [
+                    "114328"
+                ],
+                "name": "t1"
+            }
+        ],
+        "period": "Thu. 21 Jul. 2016",
+        "totals": [
+            "1061171"
+        ],
+        "metrics": [
+            {
+                "latency": 2149,
+                "name": "Page Views",
+                "type": "number",
+                "current": false,
+                "decimals": 0,
+                "id": "pageviews"
+            }
+        ],
+        "version": "1.4.16.7",
+        "reportSuite": {
+            "id": "test_rs",
+            "name": "test_RS"
+        },
+        "type": "ranked"
+    },
+    "waitSeconds": "0.718",
+    "runSeconds": "10.076"
+}
