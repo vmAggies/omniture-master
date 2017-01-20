@@ -35,11 +35,11 @@ class Value(object):
 
     def serialize(self):
         return self.properties
-    
+
     def _repr_html_(self):
         """ Format in HTML for iPython Users """
         return "<td><b>{0}</b></td><td>{1}</td>".format(self.id, self.title)
-            
+
 
     def __str__(self):
         """ allows users to print this out in a user friendly using print

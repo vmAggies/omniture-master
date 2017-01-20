@@ -17,7 +17,7 @@ def authenticate(username, secret=None, endpoint=Account.DEFAULT_ENDPOINT, prefi
     """ Authenticate to the Adobe API using WSSE """
     #setup logging
     setup_logging()
-    # if no secret is specified, we will assume that instead 
+    # if no secret is specified, we will assume that instead
     # we have received a dictionary with credentials (such as
     # from os.environ)
     if not secret:
@@ -40,20 +40,20 @@ def queue(queries):
 
 def sync(queries, heartbeat=None, interval=1):
     """
-    `omniture.sync` will queue a number of reports and then 
+    `omniture.sync` will queue a number of reports and then
     block until the results are all ready.
 
-    Queueing reports is idempotent, meaning that you can also 
-    use `omniture.sync` to fetch the results for queries that 
-    have already been queued: 
+    Queueing reports is idempotent, meaning that you can also
+    use `omniture.sync` to fetch the results for queries that
+    have already been queued:
 
         query = mysuite.report.range('2013-06-06').over_time('pageviews', 'page')
         omniture.queue(query)
         omniture.sync(query)
-        
+
     The interval will operate under an exponetial decay until it reaches 5 minutes. At which point it will ping every 5 minutes
     """
-    
+
     queue(queries)
 
     if isinstance(queries, list):
@@ -78,6 +78,6 @@ def setup_logging(default_path='logging.json', default_level=logging.INFO, env_k
         logging.config.dictConfig(config)
         requests_log = logging.getLogger("requests")
         requests_log.setLevel(logging.WARNING)
-        
+
     else:
         logging.basicConfig(level=default_level)
