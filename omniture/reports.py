@@ -55,39 +55,48 @@ class Report(object):
         """ Parse out the relevant data from the report and store it for easy access
             Should only be used internally to the class
         """
-        self.timing = {
-            'queue': float(self.raw['waitSeconds']),
-            'execution': float(self.raw['runSeconds']),
-        }
-        self.log.debug("Report Wait Time: %s, Report Execution Time: %s", self.timing['queue'], self.timing['execution'])
-        self.report = report = self.raw['report']
-        self.metrics = Value.list('metrics', report['metrics'], self.suite, 'name', 'id')
-        self.elements = Value.list('elements', report['elements'], self.suite, 'name', 'id')
-        self.period = str(report['period'])
-        self.type = str(report['type'])
-
-        segments = report.get('segments')
-        if segments:
-            self.segments = []
-            for s in segments:
-                self.segments.append(self.query.suite.segments[s['id']])
+        if self.query.id and self.query.raw['source'] == 'warehouse':
+            self.report = report = self.query.report
+            self.metrics = self.query.raw['metrics']
+            self.elements = self.query.raw['elements']
+            self.source = self.query.raw['source']
+            self.data_csv = self.raw
         else:
-            self.segments = None
+            self.timing = {
+                'queue': float(self.raw['waitSeconds']),
+                'execution': float(self.raw['runSeconds']),
+            }
+            self.log.debug("Report Wait Time: %s, Report Execution Time: %s", self.timing['queue'], self.timing['execution'])
+            self.report = report = self.raw['report']
+            self.metrics = Value.list('metrics', report['metrics'], self.suite, 'name', 'id')
+            self.elements = Value.list('elements', report['elements'], self.suite, 'name', 'id')
+            self.period = str(report['period'])
+            self.type = str(report['type'])
 
-        #Set as none until it is actually used
-        self.dict_data = None
-        self.pandas_data = None
+            segments = report.get('segments')
+            if segments:
+                self.segments = []
+                for s in segments:
+                    self.segments.append(self.query.suite.segments[s['id']])
+            else:
+                self.segments = None
+
+            #Set as none until it is actually used
+            self.dict_data = None
+            self.pandas_data = None
 
     @property
     def data(self):
         """ Returns the report data as a set of dicts for easy quering
             It generates the dicts on the 1st call then simply returns the reference to the data in subsequent calls
         """
-        #If the data hasn't been generate it generate the data
-        if self.dict_data == None:
-            self.dict_data = self.parse_rows(self.report['data'])
-
-        return self.dict_data
+        if self.source == 'warehouse':
+            return self.data_csv
+        else:
+            #If the data hasn't been generate it generate the data
+            if self.dict_data == None:
+                self.dict_data = self.parse_rows(self.report['data'])
+            return self.dict_data
 
     def parse_rows(self,row, level=0, upperlevels=None):
         """
@@ -169,9 +178,11 @@ class Report(object):
 
         Will generate the data the first time it is called otherwise passes a cached version
         """
-
-        if self.pandas_data is None:
-            self.pandas_data = self.to_dataframe()
+        if self.source == 'warehouse':
+            return self.data_csv
+        else:
+            if self.pandas_data is None:
+                self.pandas_data = self.to_dataframe()
 
         return self.pandas_data
 

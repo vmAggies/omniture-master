@@ -39,6 +39,8 @@ class Account(object):
             data = self.request('Company', 'GetReportSuites')['report_suites']
         suites = [Suite(suite['site_title'], suite['rsid'], self) for suite in data]
         self.suites = utils.AddressableList(suites)
+        #define page number as 1, will be incremented in request method. Used for warehouse requests
+        self.page_num = 1
 
     def request_cached(self, api, method, query={}, cache_key=None):
         if cache_key:
@@ -83,7 +85,29 @@ class Account(object):
         * query -- a python object representing the parameters you would
             like to pass to the API
         """
+        '''
+        HTTP REQUEST Debugging
+        try:
+            import http.client as http_client
+        except ImportError:
+            # Python 2
+            import httplib as http_client
+        http_client.HTTPConnection.debuglevel = 1
+        '''
+        if method == 'Get' and 'reportID' in query and 'page' not in query:
+            query['format'] = 'csv'
+            query['page'] = self.page_num
+
         self.log.info("Request: %s.%s  Parameters: %s", api, method, query)
+        '''
+        HTTP REQUEST Debugging
+        # You must initialize logging, otherwise you'll not see debug output.
+        logging.basicConfig()
+        logging.getLogger().setLevel(logging.DEBUG)
+        requests_log = logging.getLogger("requests.packages.urllib3")
+        requests_log.setLevel(logging.DEBUG)
+        requests_log.propagate = True
+        '''
         response = requests.post(
             self.endpoint,
             params={'method': api + '.' + method},
@@ -91,18 +115,39 @@ class Account(object):
             headers=self._build_token()
             )
         self.log.debug("Response for %s.%s:%s", api, method, response.text)
-        json_response = response.json()
 
-        if type(json_response) == dict:
-            self.log.debug("Error Code %s", json_response.get('error'))
-            if json_response.get('error') == 'report_not_ready':
-                raise reports.ReportNotReadyError(json_response)
-            elif json_response.get('error') != None:
-                raise reports.InvalidReportError(json_response)
+        if method == 'Get' and 'format' in query:
+            self.log.debug("Error Code %s", response.status_code)
+            if response.status_code == 400:
+                import json as js
+                dict_Value = js.loads(response.content)
+                if dict_Value['error'] == 'report_not_ready':
+                    raise reports.ReportNotReadyError(response.content)
+                elif dict_Value['error'] == 'eof_or_invalid_page':
+                    return response
+                elif dict_Value['error'] == 'no_warehouse_data':
+                    return response
+                elif dict_Value['error'] != None:
+                    raise reports.InvalidReportError(response.content)
+                else:
+                    return response
+            else:
+                self.page_num = self.page_num + 1
+                return response
+        else:
+            json_response = response.json()
+
+            if type(json_response) == dict:
+                self.log.debug("Error Code %s", json_response.get('error'))
+                if json_response.get('error') == 'report_not_ready':
+                    raise reports.ReportNotReadyError(json_response)
+                elif json_response.get('error') != None:
+                    raise reports.InvalidReportError(json_response)
+                else:
+                    return json_response
             else:
                 return json_response
-        else:
-            return json_response
+
 
     def jsonReport(self, reportJSON):
         """Generates a Report from the JSON (including selecting the report suite)"""
@@ -223,7 +268,7 @@ class Suite(Value):
             q = q.granularity(reportJSON['dateGranularity'])
 
         if reportJSON.has_key('source'):
-            q = q.set('source',reportJSON['source'])
+            q = q.source(reportJSON['source'])
 
         if reportJSON.has_key('metrics'):
             for m in reportJSON['metrics']:

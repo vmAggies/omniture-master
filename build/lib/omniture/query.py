@@ -8,6 +8,9 @@ from dateutil.relativedelta import relativedelta
 import json
 import logging
 import sys
+import pandas as pd
+import io
+import requests
 
 from .elements import Value
 from . import reports
@@ -49,6 +52,8 @@ class Query(object):
         self.id = None
         self.report = reports.Report
         self.method = "Get"
+        self.data_frame = None
+        self.appended_data = []
 
     def _normalize_value(self, value, category):
         if isinstance(value, Value):
@@ -101,7 +106,11 @@ class Query(object):
             stop = stop or start
 
         if start == stop:
-            self.raw['date'] = start.isoformat()
+            #self.raw['date'] = start.isoformat()
+            self.raw.update({
+                'dateFrom': start.isoformat(),
+                'dateTo': stop.isoformat(),
+            })
         else:
             self.raw.update({
                 'dateFrom': start.isoformat(),
@@ -205,8 +214,22 @@ class Query(object):
         if kwargs != None:
             element.update(kwargs)
         self.raw['elements'].append(deepcopy(element))
-
         #TODO allow this method to accept a list
+        return self
+
+    @immutable
+    def source(self, source, disable_validation=False, **kwargs):
+        """
+        Add a source to the report.
+
+        This method is intended to datawarehouse as the source of the report. This came as part of 1.4
+        but it has not been documented in Adobe analytics documents
+        """
+        if self.raw.get('source', None) == None:
+            self.raw['source'] = []
+
+        self.raw['source'] =  source
+
         return self
 
     @immutable
@@ -303,12 +326,50 @@ class Query(object):
                 heartbeat()
             time.sleep(interval)
 
+            import json as js
+            dict_Value = None
+            flag = False
+            loop_timeout = 1
+            total_row_count = 0
             #Loop until the report is done
             #(No longer raises the ReportNotReadyError)
             try:
                 response = fn()
-                status = 'done'
-                return response
+                if self.raw['source'] == 'warehouse':
+                    self.data_frame = pd.read_csv(io.StringIO(response.text))
+                    while flag == False:
+                        time.sleep(10)
+                        try:
+                            response = fn()
+                            if response.status_code == 400:
+                                dict_Value = js.loads(response.content)
+                                if dict_Value['error'] == 'no_warehouse_data':
+                                    loop_timeout = loop_timeout + 1
+                                    if loop_timeout > 30:
+                                        break
+                                    else:
+                                        continue
+                                else:
+                                    flag = True
+                                    break
+                            elif response.status_code == 200:
+                                df2 = pd.read_csv(io.StringIO(response.text))
+                                total_row_count = total_row_count + len(df2)
+                                print total_row_count
+                                self.appended_data.append(df2)
+                        except requests.ConnectionError as e:
+                            continue
+                    #appending the dataframes
+                    self.appended_data.append(self.data_frame)
+                    self.appended_data = pd.concat(self.appended_data, axis=0)
+                    dict_Value = js.loads(response.content)
+                    if dict_Value['error'] == 'eof_or_invalid_page':
+                        status = 'done'
+                        print total_row_count
+                        return  self.appended_data
+                else:
+                    status = 'done'
+                    return response
             except reports.ReportNotReadyError:
                 status = 'not ready'
                # if not soak and status not in ['not ready', 'done', 'ready']:
@@ -390,6 +451,6 @@ class Query(object):
 
     def __dir__(self):
         """ Give sensible options for Tab Completion mostly for iPython """
-        return ['async','breakdown','cancel','clone','currentData', 'element',
+        return ['async','breakdown','cancel','clone','currentData', 'element', 'source',
                 'filter', 'granularity', 'id','json' ,'metric', 'queue', 'range', 'raw', 'report',
                 'request', 'run', 'set', 'sortBy', 'suite']
