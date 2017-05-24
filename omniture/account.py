@@ -226,9 +226,9 @@ class Suite(Value):
     def elements(self):
         """ Return the list of valid elementsfor the current report suite """
         if self.account.cache:
-            data = self.request_cached('Report', 'GetElements', {"reportType":"warehouse"})
+            data = self.request_cached('Report', 'GetElements', {'reportType':'warehouse'})
         else:
-            data = self.request('Report', 'GetElements', {"reportType":"warehouse"})
+            data = self.request('Report', 'GetElements', {'reportType':'warehouse'})
         return Element.list('elements', data, self, 'name', 'id')
 
     @property
