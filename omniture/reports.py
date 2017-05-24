@@ -55,9 +55,12 @@ class Report(object):
         """ Parse out the relevant data from the report and store it for easy access
             Should only be used internally to the class
         """
-        if self.query.id and self.query.raw['source'] == 'warehouse':
+        if self.query.id and 'source' in self.query.raw:
             self.report = report = self.query.report
-            self.metrics = self.query.raw['metrics']
+            if 'metrics' in self.query.raw:
+                self.metrics = self.query.raw['metrics']
+            else:
+                self.metrics = None
             self.elements = self.query.raw['elements']
             self.source = self.query.raw['source']
             self.data_csv = self.raw
